@@ -18,12 +18,13 @@ public class DNAGuide {
     public static String guideMaker(int numberNT) {
         ArrayList<String> gn = new ArrayList<>();       //variable for actual gn
         ArrayList<String> potentalGn = new ArrayList<>();       //variable for potientalgn to check
+        ArrayList<String> potentalSequence = new ArrayList<>();
         float numberGC;
         StringBuilder print1 = new StringBuilder();
 
         for (int a = 9; a <= sequence.length()- (10 + numberNT); a++ ) {
             if (sequence.charAt(a) == 't' && sequence.charAt(a + 11) == 'a') {        //checking for 1st position to be t
-                totalSequence.add(sequence.substring(a - 10, a + (10 + numberNT)));        //variable for nt length
+                potentalSequence.add(sequence.substring(a - 10, a + (10 + numberNT)));        //variable for nt length
                 potentalGn.add(sequence.substring(a, a + numberNT));
             }
         }
@@ -38,7 +39,7 @@ public class DNAGuide {
 
             numberGC = ((float) number)/numberNT;
             if ( numberGC <= 0.37 && numberGC >= 0.125) {          //checking g/c content
-                //totalSequence.add(sequence.substring(0,27));
+                totalSequence.add(potentalSequence.get(b));
                 gn.add(potentalGn.get(b) + "   " + numberGC);
                 number = 0;
                 numberGC = 0;
@@ -49,6 +50,7 @@ public class DNAGuide {
         for (int i = 0; i < gn.size();i++) {
             print1.append(gn.get(i)).append("   ");
         }
+
         return print1.toString();
     }
 
