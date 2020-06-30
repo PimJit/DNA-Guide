@@ -46,20 +46,24 @@ public class DNAGuide {
         StringBuilder gcPrint = new StringBuilder();                    //print for gc content for gn
 
 
-        ArrayList<String> gf = new ArrayList<>();        //variable for passed gf
-        ArrayList<String> gt = new ArrayList<>();        //variable for passed gt
-        ArrayList<String> gr = new ArrayList<>();        //variable for passed gr
+        ArrayList<String> gf = new ArrayList<>();               //variable for passed gf
+        ArrayList<String> gt = new ArrayList<>();               //variable for passed gt
+        ArrayList<String> gr = new ArrayList<>();               //variable for passed gr
         ArrayList<Integer> gcContent = new ArrayList<>();       //variable for gc content
         String output = "";
 
+        Boolean GnPotential = false;
         Boolean potentialGf = false;        //initializing potential gf guides for later check
         Boolean potentialGt = false;        //initializing potential gt guides for later check
         Boolean potentialGr = false;        //initializing potential gr guides for later check
 
+        Character test;
         //creating gn
-        for (int a = 9; a <= sequence.length() - (10 + numberNT); a++) {
-            if (sequence.charAt(a) == 't' && sequence.charAt(a + 12) == 'a') {                  //checking for 1st position to be t
-                potentialSequence.add(sequence.substring(a - 9, a + (11 + numberNT)));         //variable for nt length
+        for (int a = 10; a <= sequence.length() - (11 + numberNT); a++) {
+            if (sequence.charAt(a) == 't' && (sequence.charAt(a + 11) == 'g' || sequence.charAt(a + 11) == 'c') &&
+                    sequence.charAt(a - 10) == 't' && sequence.charAt(a + numberNT - 10) == 't') {                  //checking for 1st position to be t
+                potentialSequence.add(sequence.substring(a - 10, a + (11 + numberNT)));         //variable for nt length
+                test = sequence.charAt(a-10);
                 potentialGn.add(sequence.substring(a, a + numberNT));                           //getting potentialGn sequence for later checking
             }
         }
@@ -71,11 +75,11 @@ public class DNAGuide {
                     number += 1;
                 }
             }
-
             numberGC = ((float) number) / numberNT;                   //getting percentage of G/C
             if (numberGC <= 0.37 && numberGC >= 0.125) {           //checking g/c content (Ideal 0.125 - 0.37)
                 totalSequence.add(potentialSequence.get(b));
                 gcContent.add((int) numberGC);      //getting the passed gn and its G/C percentage
+                GnPotential = true;
                 number = 0;     //resetting
                 numberGC = 0;   //resetting
             } else {
@@ -87,36 +91,30 @@ public class DNAGuide {
         //creating gt
         for (int a = 0; a < totalSequence.size(); a++) {
             //checking gt
-            if (totalSequence.get(a).charAt(0) == 't') {
-                if (totalSequence.get(a).charAt(11) == 'g' || totalSequence.get(a).charAt(11) == 'c') {
-                    potentialGt = true;
-                } else {
-                    potentialGt = false;
-                }
+            if (totalSequence.get(a).charAt(11) == 'g' || totalSequence.get(a).charAt(11) == 'c') {
+                potentialGt = true;
+            } else {
+                potentialGt = false;
             }
 
             //checking gf
-            if (totalSequence.get(a).charAt(10 + (numberNT - 10)) == 't') {
-                if (totalSequence.get(a).charAt(9 + (numberNT + 2)) == 'g' || totalSequence.get(a).charAt(9 + (numberNT + 2)) == 'c') {
-                    potentialGf = true;
-                } else {
-                    potentialGf = false;
-                }
+            if (totalSequence.get(a).charAt(9 + (numberNT + 2)) == 'g' || totalSequence.get(a).charAt(9 + (numberNT + 2)) == 'c') {
+                potentialGf = true;
+            } else {
+                potentialGf = false;
             }
 
             //checking gr
-            if (totalSequence.get(a).charAt(19 + numberNT) == 'a') {
-                if (totalSequence.get(a).charAt(10 + (numberNT - 2)) == 'g' || totalSequence.get(a).charAt(10 + (numberNT - 2)) == 'c') {
-                    potentialGr = true;
-                } else {
-                    potentialGr = false;
-                }
+            if (totalSequence.get(a).charAt(10 + (numberNT - 2)) == 'g' || totalSequence.get(a).charAt(10 + (numberNT - 2)) == 'c') {
+                potentialGr = true;
+            } else {
+                potentialGr = false;
             }
 
             //getting all guides
             String getGr;
-            if (potentialGt && potentialGf && potentialGr) {
-                gn.add(totalSequence.get(a).substring(11, 11 + numberNT));
+            if (potentialGt && potentialGf && potentialGr && GnPotential) {
+                gn.add(totalSequence.get(a).substring(10, 10 + numberNT));
                 gt.add(totalSequence.get(a).substring(0, 18));                                           //gt size of 18 nt
                 gf.add(totalSequence.get(a).substring(10 + (numberNT - 10), 29 + (numberNT - 11)));     //gf size of 18 nt
                 getGr = totalSequence.get(a).substring(numberNT + 2, 10 + numberNT + 10);               //gr size of 18 nt
@@ -148,13 +146,12 @@ public class DNAGuide {
         for (int i = 0; i < gcContent.size(); i++) {            //to print ArrayList gr
             gcPrint.append(gcContent.get(i)).append("   ");
         }
-
-        final JDialog dialog = new JDialog();
-        dialog.setAlwaysOnTop(true);
-        JOptionPane.showMessageDialog(dialog, "Output " + "from " + numberNT + " length: " + "\nGN:\n " + gnPrint.toString() +
-                "\nGT:\n" + "    " + gtPrint.toString() + "\nGF:\n" + "    " + gfPrint.toString() +
-                "\nGR:\n" + "    " + gtPrint.toString());
-
+        System.out.println(gnPrint);
+//        final JDialog dialog = new JDialog();
+//        dialog.setAlwaysOnTop(true);
+//        JOptionPane.showMessageDialog(dialog, "Output " + "from " + numberNT + " length: " + "\nGN:\n " + gnPrint.toString() +
+//                "\nGT:\n" + "    " + gtPrint.toString() + "\nGF:\n" + "    " + gfPrint.toString() +
+//                "\nGR:\n" + "    " + gtPrint.toString());
     }
 
     public static void main(String[] args) throws IOException {
@@ -201,11 +198,5 @@ public class DNAGuide {
         } else {
             System.out.println("Please type 1 or 2");
         }
-
-
-
-
-
-
     }
 }
