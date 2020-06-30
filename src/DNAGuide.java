@@ -2,6 +2,8 @@
  * @author: Nanthalak (Pim) Jitnavasathien
  */
 
+import javax.swing.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -29,7 +31,7 @@ public class DNAGuide {
         return complementary.toString();
     }
 
-    public static String guideMaker(int numberNT) {
+    public static void guideMaker(int numberNT) {
         ArrayList<String> totalSequence = new ArrayList<>();            //variable for entire DNA sequence that includes all guides
 
         ArrayList<String> gn = new ArrayList<>();                       //variable for actual gn
@@ -41,10 +43,13 @@ public class DNAGuide {
         StringBuilder gfPrint = new StringBuilder();                    // print for gf
         StringBuilder gtPrint = new StringBuilder();                    //print for gt
         StringBuilder grPrint = new StringBuilder();                    //print for gr
+        StringBuilder gcPrint = new StringBuilder();                    //print for gc content for gn
+
 
         ArrayList<String> gf = new ArrayList<>();        //variable for passed gf
         ArrayList<String> gt = new ArrayList<>();        //variable for passed gt
         ArrayList<String> gr = new ArrayList<>();        //variable for passed gr
+        ArrayList<Integer> gcContent = new ArrayList<>();       //variable for gc content
         String output = "";
 
         Boolean potentialGf = false;        //initializing potential gf guides for later check
@@ -52,9 +57,9 @@ public class DNAGuide {
         Boolean potentialGr = false;        //initializing potential gr guides for later check
 
         //creating gn
-        for (int a = 9; a <= sequence.length()- (10 + numberNT); a++ ) {
+        for (int a = 9; a <= sequence.length() - (10 + numberNT); a++) {
             if (sequence.charAt(a) == 't' && sequence.charAt(a + 12) == 'a') {                  //checking for 1st position to be t
-                potentialSequence.add(sequence.substring(a - 10, a + (10 + numberNT)));         //variable for nt length
+                potentialSequence.add(sequence.substring(a - 9, a + (11 + numberNT)));         //variable for nt length
                 potentialGn.add(sequence.substring(a, a + numberNT));                           //getting potentialGn sequence for later checking
             }
         }
@@ -67,12 +72,15 @@ public class DNAGuide {
                 }
             }
 
-            numberGC = ((float) number)/numberNT;                   //getting percentage of G/C
-            if ( numberGC <= 0.37 && numberGC >= 0.125) {           //checking g/c content
+            numberGC = ((float) number) / numberNT;                   //getting percentage of G/C
+            if (numberGC <= 0.37 && numberGC >= 0.125) {           //checking g/c content (Ideal 0.125 - 0.37)
                 totalSequence.add(potentialSequence.get(b));
-                gn.add(potentialGn.get(b) + "   " + numberGC);      //getting the passed gn and its G/C percentage
+                gcContent.add((int) numberGC);      //getting the passed gn and its G/C percentage
                 number = 0;     //resetting
                 numberGC = 0;   //resetting
+            } else {
+                number = 0;
+                numberGC = 0;
             }
         }
 
@@ -108,7 +116,8 @@ public class DNAGuide {
             //getting all guides
             String getGr;
             if (potentialGt && potentialGf && potentialGr) {
-                gt.add(totalSequence.get(a).substring(0,18));                                           //gt size of 18 nt
+                gn.add(totalSequence.get(a).substring(11, 11 + numberNT));
+                gt.add(totalSequence.get(a).substring(0, 18));                                           //gt size of 18 nt
                 gf.add(totalSequence.get(a).substring(10 + (numberNT - 10), 29 + (numberNT - 11)));     //gf size of 18 nt
                 getGr = totalSequence.get(a).substring(numberNT + 2, 10 + numberNT + 10);               //gr size of 18 nt
                 gr.add(grComplementary(getGr));             //gr size of 18 nt(?)
@@ -116,40 +125,87 @@ public class DNAGuide {
                 potentialGt = false;                        //resetting variable for future loops
                 potentialGr = false;                        //resetting variable for future loops
 
-                //return values
-                for (int i = 0; i < gn.size(); i++) {            //to print ArrayList gn
-                    gnPrint.append(gn.get(i)).append("   ");
-                }
-
-                for (int i = 0; i < gf.size(); i++) {            //to print ArrayList gf
-                    gfPrint.append(gf.get(i)).append("   ");
-                }
-
-                for (int i = 0; i < gt.size(); i++) {            //to print ArrayList gt
-                    gtPrint.append(gt.get(i)).append("   ");
-                }
-
-                for (int i = 0; i < gr.size(); i++) {            //to print ArrayList gr
-                    grPrint.append(gr.get(i)).append("   ");
-                }
-
-                output = gnPrint.toString() + " " + gtPrint.toString() + " " + gfPrint.toString() + " " + grPrint.toString();       //return value from this method
-            } else {
-                output = "None matched the criteria";
+                //return value
             }
         }
-        return output;
+
+        for (int i = 0; i < gn.size(); i++) {            //to print ArrayList gn
+            gnPrint.append(gn.get(i)).append("   ");
+        }
+
+        for (int i = 0; i < gf.size(); i++) {            //to print ArrayList gf
+            gfPrint.append(gf.get(i)).append("   ");
+        }
+
+        for (int i = 0; i < gt.size(); i++) {            //to print ArrayList gt
+            gtPrint.append(gt.get(i)).append("   ");
+        }
+
+        for (int i = 0; i < gr.size(); i++) {            //to print ArrayList gr
+            grPrint.append(gr.get(i)).append("   ");
+        }
+
+        for (int i = 0; i < gcContent.size(); i++) {            //to print ArrayList gr
+            gcPrint.append(gcContent.get(i)).append("   ");
+        }
+
+        final JDialog dialog = new JDialog();
+        dialog.setAlwaysOnTop(true);
+        JOptionPane.showMessageDialog(dialog, "Output " + "from " + numberNT + " length: " + "\nGN:\n " + gnPrint.toString() +
+                "\nGT:\n" + "    " + gtPrint.toString() + "\nGF:\n" + "    " + gfPrint.toString() +
+                "\nGR:\n" + "    " + gtPrint.toString());
+
     }
 
-    public static void main(String[] args) {
-        System.out.println("DNA sequence: ");
-        //System.out.println(args[0]);
+    public static void main(String[] args) throws IOException {
+        System.out.println("Choose One:\n1. Read sequence from file \n2. Write your own sequence input\n" +
+                "    **Please put EITHER 1 or 2**");
         Scanner scan = new Scanner(System.in);
-        sequence = scan.nextLine().toLowerCase();
-        //sequence = args[0];
+        int number = Integer.parseInt(scan.nextLine());
 
-        System.out.println(guideMaker(16));
-        System.out.println(guideMaker(17));
-        System.out.println(guideMaker(18));
+        if (number == 1) {
+            System.out.println("What is your filename?\n    **CASE SENSITIVE**");
+            String filename = scan.nextLine();
+
+            if (filename == null) {
+                System.out.println("You did not give the program any filename to read.");
+            }
+
+            File file = new File(filename + ".txt");
+            BufferedReader br = new BufferedReader(new FileReader(file));
+
+            try {
+                sequence = br.readLine();
+                guideMaker(16);
+                guideMaker(17);
+                guideMaker(18);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (sequence != null)
+                        br.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } else if (number == 2) {
+            System.out.println("DNA sequence: ");
+            sequence = scan.nextLine().toLowerCase();
+            //System.out.println(args[0]);
+            //sequence = args[0];
+
+            guideMaker(16);
+            guideMaker(17);
+            guideMaker(18);
+        } else {
+            System.out.println("Please type 1 or 2");
+        }
+
+
+
+
+
+
     }
 }
