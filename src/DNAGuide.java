@@ -10,7 +10,7 @@ import java.util.Scanner;
 public class DNAGuide {
     public static String sequence;
 
-    public static String grComplementary(String gr) {
+    public static String sequenceComplementary(String gr, Integer reverse) {      //0 for reverse 1 for not reverse
        StringBuilder complementary = new StringBuilder();           //individual gr non-complementary
 
            for (int b = 0; b < gr.length(); b++) {
@@ -27,7 +27,11 @@ public class DNAGuide {
                    complementary.append("g");
                }
            }
-           complementary.reverse();         //reverse order
+
+           if (reverse == 0) {
+               complementary.reverse();         //reverse order
+           }
+
         return complementary.toString();
     }
 
@@ -35,9 +39,12 @@ public class DNAGuide {
         ArrayList<String> totalSequence = new ArrayList<>();            //variable for entire DNA sequence that includes all guides
 
         ArrayList<String> gn = new ArrayList<>();                       //variable for actual gn
+        ArrayList<String> gnComplementary = new ArrayList<>();          //variable for actual gn but complementary to be later used for molecular beacon
         ArrayList<String> potentialGn = new ArrayList<>();              //variable for potential to check
         ArrayList<String> potentialSequence = new ArrayList<>();        //variable for potential full sequence for later checking
         float numberGC;
+
+        StringBuilder gnComplementaryPrint = new StringBuilder();                    //print for gn
         StringBuilder gnPrint = new StringBuilder();                    //print for gn
         StringBuilder totalSequencePrint = new StringBuilder();         //print for totalSequence
         StringBuilder gfPrint = new StringBuilder();                    // print for gf
@@ -113,12 +120,15 @@ public class DNAGuide {
 
             //getting all guides
             String getGr;
+            String getGn;
             if (potentialGt && potentialGf && potentialGr && GnPotential) {
                 gn.add(totalSequence.get(a).substring(10, 10 + numberNT));
+                getGn = totalSequence.get(a).substring(10, 10 + numberNT);
+                gnComplementary.add(sequenceComplementary(getGn, 1));
                 gt.add(totalSequence.get(a).substring(0, 18));                                           //gt size of 18 nt
                 gf.add(totalSequence.get(a).substring(10 + (numberNT - 10), 29 + (numberNT - 11)));     //gf size of 18 nt
                 getGr = totalSequence.get(a).substring(numberNT + 2, 10 + numberNT + 10);               //gr size of 18 nt
-                gr.add(grComplementary(getGr));             //gr size of 18 nt(?)
+                gr.add(sequenceComplementary(getGr, 0));             //gr size of 18 nt(?)
                 potentialGf = false;                        //resetting variable for future loops
                 potentialGt = false;                        //resetting variable for future loops
                 potentialGr = false;                        //resetting variable for future loops
@@ -129,6 +139,10 @@ public class DNAGuide {
 
         for (int i = 0; i < gn.size(); i++) {            //to print ArrayList gn
             gnPrint.append(gn.get(i)).append("   ");
+        }
+
+        for (int i = 0; i < gnComplementary.size(); i++) {            //to print ArrayList gf
+            gnComplementaryPrint.append(gnComplementary.get(i)).append("   ");
         }
 
         for (int i = 0; i < gf.size(); i++) {            //to print ArrayList gf
@@ -146,12 +160,13 @@ public class DNAGuide {
         for (int i = 0; i < gcContent.size(); i++) {            //to print ArrayList gr
             gcPrint.append(gcContent.get(i)).append("   ");
         }
-        System.out.println(gnPrint);
-//        final JDialog dialog = new JDialog();
-//        dialog.setAlwaysOnTop(true);
-//        JOptionPane.showMessageDialog(dialog, "Output " + "from " + numberNT + " length: " + "\nGN:\n " + gnPrint.toString() +
-//                "\nGT:\n" + "    " + gtPrint.toString() + "\nGF:\n" + "    " + gfPrint.toString() +
-//                "\nGR:\n" + "    " + gtPrint.toString());
+
+        //System.out.println(gnPrint);
+        final JDialog dialog = new JDialog();
+        dialog.setAlwaysOnTop(true);
+        JOptionPane.showMessageDialog(dialog, "Output " + "from " + numberNT + " length: " + "\nGN:\n " + "    " + gnPrint.toString() +
+                "\nGN Complementary:\n" + "    " + gnComplementary.toString() + "\nGT:\n" + "    " + gtPrint.toString() + "\nGF:\n" + "    " + gfPrint.toString() +
+                "\nGR:\n" + "    " + gtPrint.toString());
     }
 
     public static void main(String[] args) throws IOException {
